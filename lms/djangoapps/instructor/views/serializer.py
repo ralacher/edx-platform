@@ -77,3 +77,10 @@ class ShowStudentExtensionSerializer(serializers.Serializer):
             return None
 
         return user
+
+
+class UnitBlockSerializer(serializers.Serializer):
+    """
+    URL path of the unit block.
+    """
+    url = serializers.CharField()

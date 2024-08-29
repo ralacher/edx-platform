@@ -106,7 +106,7 @@ from lms.djangoapps.instructor_task.api_helper import AlreadyRunningError, Queue
 from lms.djangoapps.instructor_task.data import InstructorTaskTypes
 from lms.djangoapps.instructor_task.models import ReportStore
 from lms.djangoapps.instructor.views.serializer import (
-    AccessSerializer, RoleNameSerializer, ShowStudentExtensionSerializer, UserSerializer
+    AccessSerializer, RoleNameSerializer, ShowStudentExtensionSerializer, UserSerializer, UnitBlockSerializer
 )
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from openedx.core.djangoapps.course_groups.cohorts import add_user_to_cohort, is_course_cohorted
@@ -2966,19 +2966,33 @@ def reset_due_date(request, course_id):
                          original_due_date_str))
 
 
-@handle_dashboard_error
-@require_POST
-@ensure_csrf_cookie
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@require_course_permission(permissions.GIVE_STUDENT_EXTENSION)
-@require_post_params('url')
-def show_unit_extensions(request, course_id):
+@method_decorator(cache_control(no_cache=True, no_store=True, must_revalidate=True), name='dispatch')
+class ShowUnitExtensions(APIView):
     """
     Shows all of the students which have due date extensions for the given unit.
     """
-    course = get_course_by_id(CourseKey.from_string(course_id))
-    unit = find_unit(course, request.POST.get('url'))
-    return JsonResponse(dump_block_extensions(course, unit))
+    permission_classes = (IsAuthenticated, permissions.InstructorPermission)
+    serializer_class = UnitBlockSerializer
+    permission_name = permissions.GIVE_STUDENT_EXTENSION
+
+    @method_decorator(ensure_csrf_cookie)
+    def post(self, request, course_id):
+        """
+        Parameters:
+            `URL`: Unit block url path.
+        """
+        course = get_course_by_id(CourseKey.from_string(course_id))
+
+        serializer_data = self.serializer_class(data=request.data)
+        if not serializer_data.is_valid():
+            return HttpResponseBadRequest(reason=serializer_data.errors)
+
+        try:
+            unit = find_unit(course, request.POST.get('url'))
+        except Exception as error:  # pylint: disable=broad-except
+            return JsonResponse({'error': str(error)}, status=400)
+
+        return JsonResponse(dump_block_extensions(course, unit))
 
 
 @method_decorator(cache_control(no_cache=True, no_store=True, must_revalidate=True), name='dispatch')
