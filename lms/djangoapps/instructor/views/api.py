@@ -107,7 +107,7 @@ from lms.djangoapps.instructor_task.api_helper import AlreadyRunningError, Queue
 from lms.djangoapps.instructor_task.data import InstructorTaskTypes
 from lms.djangoapps.instructor_task.models import ReportStore
 from lms.djangoapps.instructor.views.serializer import (
-    AccessSerializer, RoleNameSerializer, ShowStudentExtensionSerializer, UnitBlockSerializer
+    AccessSerializer, RoleNameSerializer, ShowStudentExtensionSerializer, UnitBlockSerializer,
     UserSerializer, SendEmailSerializer
 )
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
