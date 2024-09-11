@@ -81,7 +81,7 @@ class ShowStudentExtensionSerializer(serializers.Serializer):
 
 class UnitBlockSerializer(serializers.Serializer):
     """
-    URL path of the unit block.
+    URL path of the unit block
     """
     url = serializers.CharField()
 
