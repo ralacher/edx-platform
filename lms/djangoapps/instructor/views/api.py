@@ -3354,8 +3354,6 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         """
         Remove Certificate Exception for the student passed in request data
         """
-        import pdb;
-        pdb.set_trace()
         course_key = CourseKey.from_string(course_id)
         try:
             raw_data = parse_request_data(request)
