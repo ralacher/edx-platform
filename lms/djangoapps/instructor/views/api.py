@@ -3354,6 +3354,8 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         """
         Remove Certificate Exception for the student passed in request data
         """
+        import pdb;
+        pdb.set_trace()
         course_key = CourseKey.from_string(course_id)
         try:
             raw_data = parse_request_data(request)
@@ -3361,7 +3363,7 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         except ValueError as error:
             return JsonResponse({'success': False, 'message': str(error)}, status=400)
 
-        serializer_data = self.serializer_class(data={'user_data': user_data})
+        serializer_data = self.serializer_class(data={'user': user_data})
         if not serializer_data.is_valid():
             return JsonResponse({'success': False, 'message': serializer_data.errors}, status=400)
 
