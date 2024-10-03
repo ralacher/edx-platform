@@ -618,12 +618,9 @@ class CertificateExceptionViewInstructorApiTest(SharedModuleStoreTestCase):
 
         res_json = json.loads(response.content.decode('utf-8'))
 
-        import pdb;
-        pdb.set_trace()
         # Assert Request not successful
         assert not res_json['success']
         # Assert Error Message
-
         assert res_json['message'] ==\
                'The record is not in the correct format. Please add a valid username or email address.'
 
@@ -1085,7 +1082,9 @@ class CertificateInvalidationViewTests(SharedModuleStoreTestCase):
         res_json = json.loads(response.content.decode('utf-8'))
 
         # Assert Error Message
-        assert res_json['message'] == {'user': ['This field is required.']}
+        assert res_json['message'] == \
+               'Student username/email field is required and can not be empty.' \
+               ' Kindly fill in username/email and then press "Invalidate Certificate" button.'
 
     def test_invalid_user_name_error(self):
         """

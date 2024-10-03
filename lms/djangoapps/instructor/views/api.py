@@ -3361,8 +3361,6 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         data = {}
 
         try:
-            import pdb;
-            pdb.set_trace()
             raw_data = parse_request_data(request)
             user = raw_data.get('user_name', '') or raw_data.get('user_email', '')
         except ValueError as error:
@@ -3386,24 +3384,6 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
 
         return JsonResponse({}, status=204)
 
-    def parse(self):
-        data = {
-            'user': self.request.data.get('user_name', '') or self.request.data.get('user_email', '')
-        }
-        response_payload = {}
-
-        # Validate request data and return error response in case of invalid data
-        serializer_data = self.serializer_class(data=data)
-        if not serializer_data.is_valid():
-            response_payload = serializer_data.errors
-
-        student = serializer_data.validated_data.get('user')
-
-        actual_user_name = data.get('user')
-        if not student:
-            response_payload = f'{actual_user_name} does not exist in the LMS. Please check your spelling and retry.'
-
-        return student, actual_user_name, response_payload
 
 def add_certificate_exception(course_key, student, certificate_exception):
     """
