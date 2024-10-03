@@ -3324,23 +3324,21 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         :return: JsonResponse object with success/error message or certificate exception data.
         """
         course_key = CourseKey.from_string(course_id)
-        data  = {}
         try:
             raw_data = parse_request_data(request)
-            data = raw_data.get('user_name', '') or raw_data.get('user_email', '')
+            user_data = raw_data.get('user_name', '') or raw_data.get('user_email', '')
 
         except ValueError as error:
             return JsonResponse({'success': False, 'message': str(error)}, status=400)
 
-        serializer_data = self.serializer_class(data={'user': data})
+        serializer_data = self.serializer_class(data={'user': user_data})
         if not serializer_data.is_valid():
             return JsonResponse({'success': False, 'message': serializer_data.errors}, status=400)
 
         student = serializer_data.validated_data.get('user')
 
         if not student:
-            invalid_user = data
-            response_payload = f'{invalid_user} does not exist in the LMS. Please check your spelling and retry.'
+            response_payload = f'{user_data} does not exist in the LMS. Please check your spelling and retry.'
             return JsonResponse({'success': False, 'message': response_payload}, status=400)
 
         try:
@@ -3356,25 +3354,21 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         """
         Remove Certificate Exception for the student passed in request data
         """
-
         course_key = CourseKey.from_string(course_id)
-        data = {}
-
         try:
             raw_data = parse_request_data(request)
-            user = raw_data.get('user_name', '') or raw_data.get('user_email', '')
+            user_data = raw_data.get('user_name', '') or raw_data.get('user_email', '')
         except ValueError as error:
             return JsonResponse({'success': False, 'message': str(error)}, status=400)
 
-        serializer_data = self.serializer_class(data={'user': user})
+        serializer_data = self.serializer_class(data={'user_data': user_data})
         if not serializer_data.is_valid():
             return JsonResponse({'success': False, 'message': serializer_data.errors}, status=400)
 
-        student = serializer_data.validated_data.get('user')
+        student = serializer_data.validated_data.get('user_data')
 
         if not student:
-            invalid_user = data.get('user')
-            response_payload = f'{invalid_user} does not exist in the LMS. Please check your spelling and retry.'
+            response_payload = f'{user_data} does not exist in the LMS. Please check your spelling and retry.'
             return JsonResponse({'success': False, 'message': response_payload}, status=400)
 
         try:
