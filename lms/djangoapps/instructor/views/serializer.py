@@ -228,3 +228,27 @@ class BlockDueDateSerializer(serializers.Serializer):
         super().__init__(*args, **kwargs)
         if disable_due_datetime:
             self.fields['due_datetime'].required = False
+
+
+class CertificateSerializer(serializers.Serializer):
+    """
+    Serializer for multiple operations related with certificates.
+    resetting a students attempts counter or starts a task to reset all students
+    attempts counters.
+    Also Add/Remove students to/from the certificate allowlist.
+    """
+    user = serializers.CharField(
+        help_text="Email or username of student.", required=True
+    )
+    notes = serializers.CharField(required=False, allow_null=True)
+
+    def validate_user(self, value):
+        """
+        Validate that the user corresponds to an existing user.
+        """
+        try:
+            user = get_student_from_identifier(value)
+        except User.DoesNotExist:
+            return None
+
+        return user
