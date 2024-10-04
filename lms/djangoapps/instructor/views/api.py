@@ -3323,6 +3323,8 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         :param course_id: course identifier of the course for whom to add/remove certificates exception.
         :return: JsonResponse object with success/error message or certificate exception data.
         """
+        import pdb;
+        pdb.set_trace()
         course_key = CourseKey.from_string(course_id)
         try:
             raw_data = parse_request_data(request)
@@ -3365,7 +3367,7 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         if not serializer_data.is_valid():
             return JsonResponse({'success': False, 'message': serializer_data.errors}, status=400)
 
-        student = serializer_data.validated_data.get('user_data')
+        student = serializer_data.validated_data.get('user')
 
         if not student:
             response_payload = f'{user_data} does not exist in the LMS. Please check your spelling and retry.'
