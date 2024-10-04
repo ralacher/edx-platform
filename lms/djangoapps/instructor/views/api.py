@@ -3315,7 +3315,6 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
     serializer_class = CertificateSerializer
     http_method_names = ['post', 'delete']
 
-    @method_decorator(cache_control(no_cache=True, no_store=True, must_revalidate=True), name='dispatch')
     @method_decorator(transaction.non_atomic_requests, name='dispatch')
     @method_decorator(ensure_csrf_cookie)
     def post(self, request, course_id):
@@ -3335,10 +3334,6 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
     def _handle_certificate_exception(self, request, course_id, action):
         """
         Handles adding or removing certificate exceptions.
-        :param request: HttpRequest object
-        :param course_id: course identifier
-        :param action: 'add' or 'remove'
-        :return: JsonResponse
         """
         course_key = CourseKey.from_string(course_id)
 
@@ -3347,7 +3342,6 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         if error_response:
             return error_response
 
-        # Perform the appropriate action (add or remove)
         try:
             if action == "add":
                 exception = add_certificate_exception(course_key, student, request.data)
@@ -3361,8 +3355,6 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
     def _get_and_validate_user(self, request):
         """
         Extracts the user data from the request and validates the student.
-        :param request: HttpRequest object
-        :return: validated student or error response
         """
         try:
             raw_data = parse_request_data(request)
