@@ -3338,7 +3338,7 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         course_key = CourseKey.from_string(course_id)
         try:
             data = request.data
-        except Exception as error:
+        except Exception:  # pylint: disable=broad-except
             return JsonResponse(
                 {
                     'success': False,
