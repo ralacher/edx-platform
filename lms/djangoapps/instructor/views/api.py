@@ -3321,7 +3321,7 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         """
         Add certificate exception for a student.
         """
-        return self._handle_certificate_exception(request, course_id, action="add")
+        return self._handle_certificate_exception(request, course_id, action="post")
 
     @method_decorator(ensure_csrf_cookie)
     @method_decorator(transaction.non_atomic_requests)
@@ -3329,35 +3329,45 @@ class CertificateExceptionView(DeveloperErrorViewMixin, APIView):
         """
         Remove certificate exception for a student.
         """
-        return self._handle_certificate_exception(request, course_id, action="remove")
+        return self._handle_certificate_exception(request, course_id, action="delete")
 
     def _handle_certificate_exception(self, request, course_id, action):
         """
         Handles adding or removing certificate exceptions.
         """
         course_key = CourseKey.from_string(course_id)
+        try:
+            data = request.data
+        except Exception as error:
+            return JsonResponse(
+                {
+                    'success': False,
+                    'message':
+                        _('The record is not in the correct format. Please add a valid username or email address.')},
+                status=400
+            )
 
         # Extract and validate the student information
-        student, error_response = self._get_and_validate_user(request)
+        student, error_response = self._get_and_validate_user(data)
+
         if error_response:
             return error_response
 
         try:
-            if action == "add":
-                exception = add_certificate_exception(course_key, student, request.data)
+            if action == "post":
+                exception = add_certificate_exception(course_key, student, data)
                 return JsonResponse(exception)
-            elif action == "remove":
+            elif action == "delete":
                 remove_certificate_exception(course_key, student)
                 return JsonResponse({}, status=204)
         except ValueError as error:
             return JsonResponse({'success': False, 'message': str(error)}, status=400)
 
-    def _get_and_validate_user(self, request):
+    def _get_and_validate_user(self, raw_data):
         """
         Extracts the user data from the request and validates the student.
         """
         try:
-            raw_data = parse_request_data(request)
             user_data = raw_data.get('user_name', '') or raw_data.get('user_email', '')
         except ValueError as error:
             return None, JsonResponse({'success': False, 'message': str(error)}, status=400)
