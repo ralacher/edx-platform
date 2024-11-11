@@ -448,8 +448,14 @@ def preference_update_from_encrypted_username_view(request, username, patch):
 
 @allow_any_authenticated_user()
 class UpdateAllNotificationPreferencesView(APIView):
+    """
+    API view for updating all notification preferences for the current user.
+    """
 
     def post(self, request):
+        """
+        Update all notification preferences for the current user.
+        """
         # check if request have required params
         serializer = UserNotificationPreferenceUpdateAllSerializer(data=request.data)
         if not serializer.is_valid():
@@ -493,10 +499,12 @@ class UpdateAllNotificationPreferencesView(APIView):
                         updated_config = copy.deepcopy(preference.notification_preference_config)
 
                         # Check if the path exists and update the value
-                        if (updated_config.get(app, {})
+                        if (
+                            updated_config.get(app, {})
                             .get('notification_types', {})
                             .get(notification_type, {})
-                            .get(channel)) is not None:
+                            .get(channel)
+                        ) is not None:
 
                             # Update the specific setting in the config
                             updated_config[app]['notification_types'][notification_type][channel] = value

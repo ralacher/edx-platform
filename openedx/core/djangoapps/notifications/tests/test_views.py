@@ -976,6 +976,10 @@ def remove_notifications_with_visibility_settings(expected_response):
 
 
 class UpdateAllNotificationPreferencesViewTests(APITestCase):
+    """
+    Tests for the UpdateAllNotificationPreferencesView.
+    """
+
     def setUp(self):
         # Create test user
         self.user = User.objects.create_user(
@@ -1089,7 +1093,9 @@ class UpdateAllNotificationPreferencesViewTests(APITestCase):
         )
 
     def test_update_discussion_notification(self):
-        """Test updating discussion notification settings"""
+        """
+        Test updating discussion notification settings
+        """
         data = {
             'notification_app': 'discussion',
             'notification_type': 'content_reported',
@@ -1110,7 +1116,9 @@ class UpdateAllNotificationPreferencesViewTests(APITestCase):
             )
 
     def test_update_non_editable_field(self):
-        """Test attempting to update a non-editable field"""
+        """
+        Test attempting to update a non-editable field
+        """
         data = {
             'notification_app': 'discussion',
             'notification_type': 'core',
@@ -1131,7 +1139,9 @@ class UpdateAllNotificationPreferencesViewTests(APITestCase):
             )
 
     def test_update_email_cadence(self):
-        """Test updating email cadence setting"""
+        """
+        Test updating email cadence setting
+        """
         data = {
             'notification_app': 'discussion',
             'notification_type': 'content_reported',
@@ -1152,7 +1162,9 @@ class UpdateAllNotificationPreferencesViewTests(APITestCase):
             )
 
     def test_update_disabled_app(self):
-        """Test updating notification for a disabled app"""
+        """
+        Test updating notification for a disabled app
+        """
         # Disable the grading app in all preferences
         for pref in self.preferences:
             config = pref.notification_preference_config
@@ -1172,7 +1184,9 @@ class UpdateAllNotificationPreferencesViewTests(APITestCase):
         self.assertEqual(response.data['status'], 'error')
 
     def test_invalid_serializer_data(self):
-        """Test handling of invalid input data"""
+        """
+        Test handling of invalid input data
+        """
         test_cases = [
             {
                 'notification_app': 'invalid_app',

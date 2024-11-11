@@ -1,7 +1,6 @@
 """
 Serializers for the notifications API.
 """
-from typing import Any, Dict
 
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
@@ -284,7 +283,7 @@ class UserNotificationPreferenceUpdateAllSerializer(serializers.Serializer):
             })
 
         # Validate notification_channel requirements
-        if not email_cadence and  notification_type and not notification_channel:
+        if not email_cadence and notification_type and not notification_channel:
             raise ValidationError({
                 'notification_channel': 'notification_channel is required for notification_type.'
             })
