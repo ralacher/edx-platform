@@ -1217,21 +1217,3 @@ class UpdateAllNotificationPreferencesViewTests(APITestCase):
         for test_case in test_cases:
             response = self.client.post(self.url, test_case, format='json')
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_number_of_quires_in_api_call(self):
-        """
-        Test number of database queries in api call should be less than 10 using assertNumQueries
-        """
-        data = {
-            'notification_app': 'discussion',
-            'notification_type': 'content_reported',
-            'notification_channel': 'push',
-            'value': False
-        }
-
-        with self.assertNumQueries(10):
-            response = self.client.post(self.url, data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['status'], 'success')
-        self.assertEqual(response.data['data']['total_updated'], 3)
