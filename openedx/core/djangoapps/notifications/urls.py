@@ -36,7 +36,7 @@ urlpatterns = [
     path('preferences/update/<str:username>/<str:patch>/', preference_update_from_encrypted_username_view,
          name='preference_update_from_encrypted_username_view'),
     path(
-        'notification-preferences/update-all/',
+        'preferences/update-all/',
         UpdateAllNotificationPreferencesView.as_view(),
         name='update-all-notification-preferences'
     ),
