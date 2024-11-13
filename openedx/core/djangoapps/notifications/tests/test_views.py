@@ -5,6 +5,7 @@ import json
 from copy import deepcopy
 from datetime import datetime, timedelta
 from unittest import mock
+from unittest.mock import patch
 
 import ddt
 from django.conf import settings
@@ -1217,3 +1218,54 @@ class UpdateAllNotificationPreferencesViewTests(APITestCase):
         for test_case in test_cases:
             response = self.client.post(self.url, test_case, format='json')
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class GetAggregateNotificationPreferencesTest(APITestCase):
+    """
+    Tests for the GetAggregateNotificationPreferences API view.
+    """
+    def setUp(self):
+        # Set up a user and API client
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+        self.url = reverse('notification-preferences-aggregated')  # Adjust with the actual name
+
+    def test_no_active_notification_preferences(self):
+        """
+        Test case: No active notification preferences found for the user
+        """
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['status'], 'error')
+        self.assertEqual(response.data['message'], 'No active notification preferences found')
+
+    @patch('openedx.core.djangoapps.notifications.view.aggregate_notification_configs')
+    def test_with_active_notification_preferences(self, mock_aggregate):
+        """
+        Test case: Active notification preferences found for the user
+        """
+        # Mock aggregate_notification_configs for a controlled output
+        mock_aggregate.return_value = {'mocked': 'data'}
+
+        # Create active notification preferences for the user
+        CourseNotificationPreference.objects.create(
+            user=self.user,
+            is_active=True,
+            notification_preference_config={'example': 'config'}
+        )
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['status'], 'success')
+        self.assertEqual(response.data['message'], 'Notification preferences retrieved')
+        self.assertEqual(response.data['data'], {'mocked': 'data'})
+
+    def test_unauthenticated_user(self):
+        """
+        Test case: Request without authentication
+        """
+        # Test case: Request without authentication
+        self.client.logout()  # Remove authentication
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

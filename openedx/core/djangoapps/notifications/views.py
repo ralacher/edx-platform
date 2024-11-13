@@ -39,7 +39,7 @@ from .serializers import (
     UserNotificationPreferenceUpdateAllSerializer,
     UserNotificationPreferenceUpdateSerializer
 )
-from .utils import get_is_new_notification_view_enabled, get_show_notifications_tray
+from .utils import get_is_new_notification_view_enabled, get_show_notifications_tray, aggregate_notification_configs
 
 
 @allow_any_authenticated_user()
@@ -501,9 +501,9 @@ class UpdateAllNotificationPreferencesView(APIView):
                         # Check if the path exists and update the value
                         if (
                             updated_config.get(app, {})
-                            .get('notification_types', {})
-                            .get(notification_type, {})
-                            .get(channel)
+                                .get('notification_types', {})
+                                .get(notification_type, {})
+                                .get(channel)
                         ) is not None:
 
                             # Update the specific setting in the config
@@ -556,3 +556,29 @@ class UpdateAllNotificationPreferencesView(APIView):
                 'status': 'error',
                 'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@allow_any_authenticated_user()
+@api_view(['GET'])
+def get_aggregate_notification_preferences(request):
+    """
+    API view for getting the aggregate notification preferences for the current user.
+    """
+    notification_preferences = CourseNotificationPreference.objects.filter(user=request.user, is_active=True)
+
+    if not notification_preferences.exists():
+        return Response({
+            'status': 'error',
+            'message': 'No active notification preferences found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    notification_configs = notification_preferences.values_list('notification_preference_config', flat=True)
+    notification_configs = aggregate_notification_configs(
+        notification_preferences.first().notification_preference_config,
+        notification_configs
+    )
+
+    return Response({
+        'status': 'success',
+        'message': 'Notification preferences retrieved',
+        'data': notification_configs
+    }, status=status.HTTP_200_OK)

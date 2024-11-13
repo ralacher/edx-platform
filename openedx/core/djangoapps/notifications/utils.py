@@ -4,6 +4,7 @@ Utils function for notifications app
 from typing import Dict, List
 
 from common.djangoapps.student.models import CourseAccessRole, CourseEnrollment
+from openedx.core.djangoapps.discussions.models import DEFAULT_CONFIG_ENABLED
 from openedx.core.djangoapps.django_comment_common.models import Role
 from openedx.core.djangoapps.notifications.config.waffle import ENABLE_NOTIFICATIONS, ENABLE_NEW_NOTIFICATION_VIEW
 from openedx.core.lib.cache_utils import request_cached
@@ -158,3 +159,64 @@ def clean_arguments(kwargs):
     if kwargs.get('created', {}):
         clean_kwargs.update(kwargs.get('created'))
     return clean_kwargs
+
+
+def aggregate_notification_configs(default_config, configs_list):
+    """
+    Update default notification config with values from other configs.
+    Rules:
+    1. Start with default config as base
+    2. If any value is True in other configs, make it True
+    3. All email_cadence will be set to "Daily"
+
+    Args:
+        default_config (dict): Base configuration to start with
+        configs_list (list): List of notification config dictionaries to apply
+
+    Returns:
+        dict: Updated config following the same structure
+    """
+    if not configs_list:
+        return default_config
+
+    # Create a deep copy of default config to avoid modifying the original
+    import copy
+    result_config = copy.deepcopy(default_config)
+
+    # Get all categories from default config
+    categories = result_config.keys()
+
+    # Process each category
+    for category in categories:
+        category_config = result_config[category]
+
+        # Process each config in the list
+        for config in configs_list:
+
+            if category not in config:
+                continue
+
+            other_cat_config = config[category]
+
+            # Update enabled status
+            category_config["enabled"] |= other_cat_config.get("enabled", False)
+
+            # Update core_notification_types
+            if "core_notification_types" in other_cat_config:
+                existing_types = set(category_config.get("core_notification_types", []))
+                existing_types.update(other_cat_config["core_notification_types"])
+                category_config["core_notification_types"] = list(existing_types)
+
+            # Update notification types
+            if "notification_types" in other_cat_config:
+                for type_key, type_config in other_cat_config["notification_types"].items():
+                    # Only process notification types that exist in default config
+                    if type_key in category_config["notification_types"]:
+                        for field in ["web", "push", "email"]:
+                            if field in type_config:
+                                category_config["notification_types"][type_key][field] |= type_config[field]
+                        # Set email_cadence to Daily
+                        category_config["notification_types"][type_key]["email_cadence"] = \
+                        default_config[category]["notification_types"][type_key]["email_cadence"]
+
+    return result_config
