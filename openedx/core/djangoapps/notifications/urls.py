@@ -25,8 +25,8 @@ urlpatterns = [
         UserNotificationPreferenceView.as_view(),
         name='notification-preferences'
     ),
-    re_path(
-        fr'^configurations/',
+    path(
+        'configurations/',
         AggregatedNotificationPreferences.as_view(),
         name='notification-preferences-aggregated'
     ),
