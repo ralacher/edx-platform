@@ -13,7 +13,7 @@ from .views import (
     NotificationReadAPIView,
     UpdateAllNotificationPreferencesView,
     UserNotificationPreferenceView,
-    preference_update_from_encrypted_username_view, get_aggregate_notification_preferences
+    preference_update_from_encrypted_username_view, AggregatedNotificationPreferences
 )
 
 router = routers.DefaultRouter()
@@ -27,7 +27,7 @@ urlpatterns = [
     ),
     re_path(
         fr'^configurations/',
-        get_aggregate_notification_preferences,
+        AggregatedNotificationPreferences.as_view(),
         name='notification-preferences-aggregated'
     ),
     path('', NotificationListAPIView.as_view(), name='notifications-list'),

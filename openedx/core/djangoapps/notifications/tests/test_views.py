@@ -1224,6 +1224,7 @@ class GetAggregateNotificationPreferencesTest(APITestCase):
     """
     Tests for the GetAggregateNotificationPreferences API view.
     """
+
     def setUp(self):
         # Set up a user and API client
         self.user = User.objects.create_user(username='testuser', password='testpass')
@@ -1240,7 +1241,7 @@ class GetAggregateNotificationPreferencesTest(APITestCase):
         self.assertEqual(response.data['status'], 'error')
         self.assertEqual(response.data['message'], 'No active notification preferences found')
 
-    @patch('openedx.core.djangoapps.notifications.view.aggregate_notification_configs')
+    @patch('openedx.core.djangoapps.notifications.views.aggregate_notification_configs')
     def test_with_active_notification_preferences(self, mock_aggregate):
         """
         Test case: Active notification preferences found for the user
@@ -1268,4 +1269,4 @@ class GetAggregateNotificationPreferencesTest(APITestCase):
         # Test case: Request without authentication
         self.client.logout()  # Remove authentication
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

@@ -559,26 +559,30 @@ class UpdateAllNotificationPreferencesView(APIView):
 
 
 @allow_any_authenticated_user()
-@api_view(['GET'])
-def get_aggregate_notification_preferences(request):
+class AggregatedNotificationPreferences(APIView):
     """
     API view for getting the aggregate notification preferences for the current user.
     """
-    notification_preferences = CourseNotificationPreference.objects.filter(user=request.user, is_active=True)
 
-    if not notification_preferences.exists():
+    def get(self, request):
+        """
+        API view for getting the aggregate notification preferences for the current user.
+        """
+        notification_preferences = CourseNotificationPreference.objects.filter(user=request.user, is_active=True)
+
+        if not notification_preferences.exists():
+            return Response({
+                'status': 'error',
+                'message': 'No active notification preferences found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        notification_configs = notification_preferences.values_list('notification_preference_config', flat=True)
+        notification_configs = aggregate_notification_configs(
+            notification_preferences.first().notification_preference_config,
+            notification_configs
+        )
+
         return Response({
-            'status': 'error',
-            'message': 'No active notification preferences found'
-        }, status=status.HTTP_404_NOT_FOUND)
-    notification_configs = notification_preferences.values_list('notification_preference_config', flat=True)
-    notification_configs = aggregate_notification_configs(
-        notification_preferences.first().notification_preference_config,
-        notification_configs
-    )
-
-    return Response({
-        'status': 'success',
-        'message': 'Notification preferences retrieved',
-        'data': notification_configs
-    }, status=status.HTTP_200_OK)
+            'status': 'success',
+            'message': 'Notification preferences retrieved',
+            'data': notification_configs
+        }, status=status.HTTP_200_OK)
