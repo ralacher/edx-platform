@@ -13,7 +13,6 @@ def lms_api_filter(endpoints):
             # Don't just replace this with /v1 when switching to a later version of the CMS API.
             # That would include some unintended endpoints.
             path.startswith("/courses/")
-            # or path.startswith("/verify_student/status/")
         ):
             filtered.append((path, path_regex, method, callback))
     return filtered
