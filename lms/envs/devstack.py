@@ -579,6 +579,7 @@ SPECTACULAR_SETTINGS = {
     'SERVERS': [
         {'url': f'http://{LMS_BASE}/api/contentstore', 'description': 'Local'}
     ],
+    'COMPONENT_NO_READ_ONLY_REQUIRED': True,  # Prevent read-only fields from being marked as required
 }
 
 
