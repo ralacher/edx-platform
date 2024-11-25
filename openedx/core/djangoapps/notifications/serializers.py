@@ -256,7 +256,6 @@ class UserNotificationPreferenceUpdateAllSerializer(serializers.Serializer):
     value = serializers.BooleanField(required=False)
     notification_type = serializers.CharField(
         required=True,
-        validators=[validate_notification_type]
     )
     notification_channel = serializers.CharField(
         required=False,
@@ -287,6 +286,10 @@ class UserNotificationPreferenceUpdateAllSerializer(serializers.Serializer):
             raise ValidationError({
                 'notification_channel': 'notification_channel is required for notification_type.'
             })
+
+        # Validate notification type
+        if notification_type not in [COURSE_NOTIFICATION_TYPES.get(notification_type), "core"]:
+            raise ValidationError(f'{notification_type} is not a valid notification type.')
 
         # Validate notification type and channel is editable
         if notification_channel and notification_type:
