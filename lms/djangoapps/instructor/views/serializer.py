@@ -236,11 +236,13 @@ class CertificateSerializer(serializers.Serializer):
     resetting a students attempts counter or starts a task to reset all students
     attempts counters.
     Also Add/Remove students to/from the certificate allowlist.
+    Serializer for resetting a students attempts counter or starts a task to reset all students
+    attempts counters.
     """
     user = serializers.CharField(
         help_text="Email or username of student.", required=True
     )
-    notes = serializers.CharField(required=False, allow_null=True)
+    notes = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     def validate_user(self, value):
         """
