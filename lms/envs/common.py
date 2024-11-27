@@ -4704,7 +4704,7 @@ LEARNER_PROGRESS_PROMPT_FOR_NON_ACTIVE_CONTRACT = ''
 # which are not provided by the Enterprise service. These settings provide base values
 # for those features.
 
-ENTERPRISE_PLATFORM_WELCOME_TEMPLATE = _('Welcome to {platform_name}.')
+ENTERPRISE_PLATFORM_WELCOME_TEMPLATE = _('Welcome to Robert {platform_name}.')
 ENTERPRISE_SPECIFIC_BRANDED_WELCOME_TEMPLATE = _(
     'You have left the {start_bold}{enterprise_name}{end_bold} website and are now on the {platform_name} site. '
     '{enterprise_name} has partnered with {platform_name} to offer you high-quality, always available learning '
